@@ -9,27 +9,87 @@
 
 void gotoxy(int x, int y);
 int getch();
+void print_block(int (*)[4]);
 void print_frame();
+void f1(int ** shape);
+
 
 typedef struct {
-    int x;
-    int y;
+    int * x_arr;
+    int * y_arr;
     int shape[4][4];
     void (*spin)(int **);
-} block;
+} block_struct;
 
 int main()
 {
+
+    block_struct block[6] ={
+        {(int[16]){0}, (int[16]){0}, 
+        {
+         {0, 1, 0, 0},
+         {0, 1, 0, 0},
+         {0, 1, 0, 0},
+         {0, 1, 0, 0}
+        },
+        f1},
+        {(int[16]){0}, (int[16]){0}, 
+        {
+         {0, 0, 0, 0},
+         {0, 1, 1, 0},
+         {0, 1, 1, 0},
+         {0, 0, 0, 0}
+        },
+        f1},
+        {(int[16]){0}, (int[16]){0}, 
+        {
+         {0, 0, 0, 0},
+         {0, 1, 0, 0},
+         {0, 1, 0, 0},
+         {0, 1, 1, 0}
+        },
+        f1},
+        {(int[16]){0}, (int[16]){0}, 
+        {
+         {0, 0, 0, 0},
+         {0, 1, 0, 0},
+         {0, 1, 1, 0},
+         {0, 0, 1, 0}
+        },
+        f1},
+        {(int[16]){0}, (int[16]){0}, 
+        {
+         {0, 0, 0, 0},
+         {0, 0, 1, 0},
+         {0, 1, 1, 1},
+         {0, 0, 0, 0}
+        },
+        f1},
+        {(int[16]){0}, (int[16]){0}, 
+        {
+         {0, 0, 0, 0},
+         {0, 0, 1, 0},
+         {0, 1, 1, 1},
+         {0, 0, 1, 0}
+        },
+        f1}
+    };
+
     printf("\e[?25l"); //커서 깜빡임 제거
-    print_frame();//게임틀 출력
+
     
     int x = 6;
     int y = 2;
     int key = 0;
+    int current = (rand() % 6);
     while(1)
     {
+        printf("%c[2J", 27 );
+        print_frame();//게임틀 출력
         gotoxy(x,y);
-        printf("□");
+        print_block(block[current].shape);
+        //print_block(block[rand()%6].shape);
+        //printf("□");
         //printf("■■■■■■■■■■■\n");
         
         key = getch();
@@ -49,6 +109,25 @@ int main()
     }
     
     //tput clear;
+}
+
+void f1(int ** shape)
+{
+    int cp_shape[4][4];
+    for(int i = 0; i < 4; i++)
+    {
+        for(int j = 0; j < 4; j++)
+        {
+            cp_shape[i][j] = shape[i][j];
+        }
+    }
+   for(int i = 0; i < 4; i++)
+    {
+        for(int j = 0; j < 4; j++)
+        {
+            shape[i][j] = cp_shape[j][3-i];
+        }
+    }
 }
 
 
@@ -75,6 +154,21 @@ int getch()
     c = getchar();                               // 키보드 입력 읽음
     tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);  // 원래의 설정으로 복구
     return c;
+}
+
+void print_block(int (*shape)[4])
+{
+    for(int i = 0; i < 4; i ++)
+    {
+        for(int j = 0; j < 4; j++)
+        {
+            if(shape[i][j] == 0)
+            printf(" ");
+            if(shape[i][j] == 1)
+            printf("□");
+        }
+        printf("\n");
+    }
 }
 
 void print_frame()
