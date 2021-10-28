@@ -1,4 +1,5 @@
 //terminal font 24,  자간 8로 설정
+//글자 두배로 키우는 기능  <—  ESC#3, ESC#4
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,6 +24,8 @@ typedef struct {
 
 int main()
 {
+    srand(time(NULL));
+    printf("\033#3");
 
     block_struct block[6] ={
         {(int[16]){0}, (int[16]){0}, 
@@ -79,12 +82,13 @@ int main()
 
     
     int x = 6;
-    int y = 2;
+    int y = 1;
     int key = 0;
     int current = (rand() % 6);
     while(1)
     {
-        printf("%c[2J", 27 );
+        printf("\033[2J");//tput clear
+        gotoxy(1,1);
         print_frame();//게임틀 출력
         gotoxy(x,y);
         print_block(block[current].shape);
@@ -108,7 +112,6 @@ int main()
         }
     }
     
-    //tput clear;
 }
 
 void f1(int ** shape)
@@ -160,6 +163,7 @@ void print_block(int (*shape)[4])
 {
     for(int i = 0; i < 4; i ++)
     {
+        printf("\033[s");//커서 위치 저장
         for(int j = 0; j < 4; j++)
         {
             if(shape[i][j] == 0)
@@ -167,7 +171,9 @@ void print_block(int (*shape)[4])
             if(shape[i][j] == 1)
             printf("□");
         }
-        printf("\n");
+        printf("\033[u");//저장된 커서 위치로 이동
+        printf("\033[%dB", 1);
+        //printf("\n");
     }
 }
 
@@ -199,6 +205,7 @@ void print_frame()
     };
     for(int i = 0; i < 20; i++)
     {
+        
         for(int j = 0; j < 12; j++)
         {
             if(frame[i][j] == 0)
