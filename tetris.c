@@ -10,14 +10,14 @@
 
 void gotoxy(int x, int y);
 int getch();
-void print_block(int (*)[4]);
+void print_block(int (*)[4], int, int);
 void print_frame();
 void f1(int ** shape);
+void fill_xy_arr(int (*)[2], int (*)[4]);
 
 
 typedef struct {
-    int * x_arr;
-    int * y_arr;
+    int (*xy_arr)[2];
     int shape[4][4];
     void (*spin)(int **);
 } block_struct;
@@ -25,10 +25,9 @@ typedef struct {
 int main()
 {
     srand(time(NULL));
-    printf("\033#3");
 
     block_struct block[6] ={
-        {(int[16]){0}, (int[16]){0}, 
+        {(int[4][2]){0}, 
         {
          {0, 1, 0, 0},
          {0, 1, 0, 0},
@@ -36,7 +35,7 @@ int main()
          {0, 1, 0, 0}
         },
         f1},
-        {(int[16]){0}, (int[16]){0}, 
+        {(int[4][2]){0}, 
         {
          {0, 0, 0, 0},
          {0, 1, 1, 0},
@@ -44,7 +43,7 @@ int main()
          {0, 0, 0, 0}
         },
         f1},
-        {(int[16]){0}, (int[16]){0}, 
+        {(int[4][2]){0},
         {
          {0, 0, 0, 0},
          {0, 1, 0, 0},
@@ -52,7 +51,7 @@ int main()
          {0, 1, 1, 0}
         },
         f1},
-        {(int[16]){0}, (int[16]){0}, 
+        {(int[4][2]){0}, 
         {
          {0, 0, 0, 0},
          {0, 1, 0, 0},
@@ -60,7 +59,7 @@ int main()
          {0, 0, 1, 0}
         },
         f1},
-        {(int[16]){0}, (int[16]){0}, 
+        {(int[4][2]){0},
         {
          {0, 0, 0, 0},
          {0, 0, 1, 0},
@@ -68,7 +67,7 @@ int main()
          {0, 0, 0, 0}
         },
         f1},
-        {(int[16]){0}, (int[16]){0}, 
+        {(int[5][2]){0}, 
         {
          {0, 0, 0, 0},
          {0, 0, 1, 0},
@@ -91,7 +90,7 @@ int main()
         gotoxy(1,1);
         print_frame();//게임틀 출력
         gotoxy(x,y);
-        print_block(block[current].shape);
+        print_block(block[current].shape, x, y);
         //print_block(block[rand()%6].shape);
         //printf("□");
         //printf("■■■■■■■■■■■\n");
@@ -132,8 +131,15 @@ void f1(int ** shape)
         }
     }
 }
-
-
+/*
+void fill_xy_arr(int (*xy_arr)[2], int (*shape)[4])
+{
+    for(int i = 0; i < sizeof(xy_arr)/sizeof(xy_arr[0]); i++)
+    {
+        xy_arr[i][0] = 
+    }
+}
+*/
 void gotoxy(int x, int y) 
 {
      printf("\033[%d;%df",y,x);
@@ -159,21 +165,28 @@ int getch()
     return c;
 }
 
-void print_block(int (*shape)[4])
+void print_block(int (*shape)[4], int x, int y)
 {
     for(int i = 0; i < 4; i ++)
     {
-        printf("\033[s");//커서 위치 저장
+        //printf("\033[s");//커서 위치 저장
         for(int j = 0; j < 4; j++)
         {
-            if(shape[i][j] == 0)
-            printf(" ");
-            if(shape[i][j] == 1)
-            printf("□");
+            if(x == 1 && shape[i][j] == 0)
+                printf("▨");
+            else if (x == 12 && shape[i][j] == 0)
+                printf("▨");
+            else if(shape[i][j] == 0)
+                printf(" ");
+            else if(shape[i][j] == 1)
+                printf("□");
+            gotoxy(++x,y);//커서 우측으로 한 칸 이동
         }
-        printf("\033[u");//저장된 커서 위치로 이동
-        printf("\033[%dB", 1);
-        //printf("\n");
+        x -= 4;
+        y++;
+        //좌측으로 네 칸, 아래로 한 칸 커서 이동
+        //printf("\033[u");//저장된 커서 위치로 이동
+        //printf("\033[%dB", 1);//아래로 한 칸씩 커서 이동
     }
 }
 
