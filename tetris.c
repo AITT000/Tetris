@@ -91,7 +91,11 @@ int main()
         print_frame();//게임틀 출력
         gotoxy(x,y);
         print_block(block[current].shape, x, y);
-        //print_block(block[rand()%6].shape);
+        fill_xy_arr(block[current].xy_arr, block[current].shape);
+        //x_max = max(block[current].xy_arr);
+        //x_min = min(block[current].xy_arr);
+        //y_min = min(block[current].xy_arr);
+        print_block(block[rand()%6].shape);
         //printf("□");
         //printf("■■■■■■■■■■■\n");
         
@@ -104,10 +108,14 @@ int main()
         if(key == 67)
         {
             x++;
+            if(x > 8)
+                x = 8;
         }
         if(key == 68)
         {
             x--;
+            if(x < 1)
+                x = 1;
         }
     }
     
@@ -131,15 +139,25 @@ void f1(int ** shape)
         }
     }
 }
-/*
+
 void fill_xy_arr(int (*xy_arr)[2], int (*shape)[4])
 {
-    for(int i = 0; i < sizeof(xy_arr)/sizeof(xy_arr[0]); i++)
+    for(int i = 0; i < sizeof(xy_arr)/sizeof(xy_arr[0]); )
     {
-        xy_arr[i][0] = 
+        for(int j = 0; j < 4; j++)
+        {
+            for(int k = 0; k < 4; k++)
+            {
+                if(shape[k][j] == 1)
+                {
+                    xy_arr[i][0] = j;
+                    xy_arr[i++][1] = k;
+                }
+            }
+        }
     }
 }
-*/
+
 void gotoxy(int x, int y) 
 {
      printf("\033[%d;%df",y,x);
@@ -184,6 +202,7 @@ void print_block(int (*shape)[4], int x, int y)
         }
         x -= 4;
         y++;
+        gotoxy(x,y);
         //좌측으로 네 칸, 아래로 한 칸 커서 이동
         //printf("\033[u");//저장된 커서 위치로 이동
         //printf("\033[%dB", 1);//아래로 한 칸씩 커서 이동
