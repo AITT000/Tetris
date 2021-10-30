@@ -24,6 +24,8 @@ int find_xmax(int (*)[2]);
 int find_xmin(int (*)[2]);
 int find_ymax(int (*)[2]);
 
+int size = 0;
+
 int main()
 {
     srand(time(NULL));
@@ -81,7 +83,6 @@ int main()
 
     printf("\e[?25l"); //커서 깜빡임 제거
 
-    
     int x = 6;
     int y = 1;
     int key = 0;
@@ -95,14 +96,21 @@ int main()
         print_block(block[current], x, y);
         fill_xy_arr(block[current].xy_arr, block[current].shape);
         int xmax = find_xmax(block[current].xy_arr);
-        printf("%d\n", xmax);
         int xmin = find_xmin(block[current].xy_arr);
-                printf("%d\n", xmin);
         int ymax = find_ymax(block[current].xy_arr);
-        //print_block(block[rand()%6].shape);
+        
         //printf("□");
         //printf("■■■■■■■■■■■\n");
-        
+       
+        if(current == 5)
+        {
+            size = 10 * 4;
+        }
+        else
+        {
+            size = 8 * 4;
+        }
+
         key = getch();
         if(key == 66)
         {
@@ -180,7 +188,7 @@ void f1(int ** shape)
 
 void fill_xy_arr(int (*xy_arr)[2], int (*shape)[4])
 {
-    for(int i = 0; i < sizeof(xy_arr)/sizeof(xy_arr[0]); )
+    for(int i = 0; i < size/sizeof(xy_arr[0]); )
     {
         for(int j = 0; j < 4; j++)
         {
@@ -206,7 +214,7 @@ void gotoxy(int x, int y)
 int find_xmax(int (*xy_arr)[2])
 {
     int xmax = xy_arr[0][0];
-    for(int i = 0; i < sizeof(xy_arr)/sizeof(xy_arr[0]); i++)
+    for(int i = 0; i < size/sizeof(xy_arr[0]); i++)
     {
         if(xmax < xy_arr[i][0])
             xmax = xy_arr[i][0];
@@ -217,7 +225,7 @@ int find_xmax(int (*xy_arr)[2])
 int find_xmin(int (*xy_arr)[2])
 {
     int xmin = xy_arr[0][0];
-    for(int i = 0; i < sizeof(xy_arr)/sizeof(xy_arr[0]); i++)
+    for(int i = 0; i < size/sizeof(xy_arr[0]); i++)
     {
         if(xmin > xy_arr[i][0])
             xmin = xy_arr[i][0];
@@ -228,7 +236,7 @@ int find_xmin(int (*xy_arr)[2])
 int find_ymax(int (*xy_arr)[2])
 {
     int ymax = xy_arr[0][1];
-    for(int i = 0; i < sizeof(xy_arr)/sizeof(xy_arr[0]); i++)
+    for(int i = 0; i < size/sizeof(xy_arr[0]); i++)
     {
         if(ymax < xy_arr[i][1])
             ymax = xy_arr[i][1];
@@ -284,19 +292,19 @@ void print_block(block_struct block, int x, int y)
             switch(xmax)
             {
                 case 0:
-                    if(x == 13 && block.shape[i][j] == 0)
+                    if(x == 10 && block.shape[i][j] == 0)
                         printf("▨");
                     break;
                 case 1:
-                    if(x == 12 && block.shape[i][j] == 0)
-                        printf("▨");
-                    break;
-                case 2:
                     if(x == 11 && block.shape[i][j] == 0)
                         printf("▨");
                     break;
+                case 2:
+                    if(x == 12 && block.shape[i][j] == 0)
+                        printf("▨");
+                    break;
                 case 3:
-                    if(x == 10 && block.shape[i][j] == 0)
+                    if(x == 13 && block.shape[i][j] == 0)
                         printf("▨");
                     break;
             }
