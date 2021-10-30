@@ -8,19 +8,21 @@
 #include <unistd.h>
 #include <wchar.h>
 
-void gotoxy(int x, int y);
-int getch();
-void print_block(int (*)[4], int, int);
-void print_frame();
-void f1(int ** shape);
-void fill_xy_arr(int (*)[2], int (*)[4]);
-
-
 typedef struct {
     int (*xy_arr)[2];
     int shape[4][4];
     void (*spin)(int **);
 } block_struct;
+
+void gotoxy(int x, int y);
+int getch();
+void print_block(block_struct, int, int);
+void print_frame();
+void f1(int ** shape);
+void fill_xy_arr(int (*)[2], int (*)[4]);
+int find_xmax(int (*)[2]);
+int find_xmin(int (*)[2]);
+int find_ymax(int (*)[2]);
 
 int main()
 {
@@ -90,12 +92,14 @@ int main()
         gotoxy(1,1);
         print_frame();//게임틀 출력
         gotoxy(x,y);
-        print_block(block[current].shape, x, y);
+        print_block(block[current], x, y);
         fill_xy_arr(block[current].xy_arr, block[current].shape);
-        //x_max = max(block[current].xy_arr);
-        //x_min = min(block[current].xy_arr);
-        //y_min = min(block[current].xy_arr);
-        print_block(block[rand()%6].shape);
+        int xmax = find_xmax(block[current].xy_arr);
+        printf("%d\n", xmax);
+        int xmin = find_xmin(block[current].xy_arr);
+                printf("%d\n", xmin);
+        int ymax = find_ymax(block[current].xy_arr);
+        //print_block(block[rand()%6].shape);
         //printf("□");
         //printf("■■■■■■■■■■■\n");
         
@@ -108,14 +112,48 @@ int main()
         if(key == 67)
         {
             x++;
-            if(x > 8)
-                x = 8;
+            switch(xmax)
+            {
+                case 0:
+                    if(x > 11)
+                        x--;
+                    break;
+                case 1:
+                    if(x > 10)
+                        x--;
+                    break;
+                case 2:
+                    if(x > 9)
+                        x--;
+                    break;
+                case 3:
+                    if(x > 8)
+                        x--;
+                    break;
+            }
         }
         if(key == 68)
         {
             x--;
-            if(x < 1)
-                x = 1;
+            switch(xmin)
+            {
+                case 0:
+                    if(x < 2)
+                        x++;
+                    break;
+                case 1:
+                    if(x < 1)
+                        x++;
+                    break;
+                case 2:
+                    if(x < 0)
+                        x++;
+                    break;
+                case 3:
+                    if(x < -1)
+                        x++;
+                    break;
+            }
         }
     }
     
@@ -165,7 +203,38 @@ void gotoxy(int x, int y)
      fflush(stdout);
 }
 
+int find_xmax(int (*xy_arr)[2])
+{
+    int xmax = xy_arr[0][0];
+    for(int i = 0; i < sizeof(xy_arr)/sizeof(xy_arr[0]); i++)
+    {
+        if(xmax < xy_arr[i][0])
+            xmax = xy_arr[i][0];
+    }
+    return xmax;
+}
 
+int find_xmin(int (*xy_arr)[2])
+{
+    int xmin = xy_arr[0][0];
+    for(int i = 0; i < sizeof(xy_arr)/sizeof(xy_arr[0]); i++)
+    {
+        if(xmin > xy_arr[i][0])
+            xmin = xy_arr[i][0];
+    }
+    return xmin;
+}
+
+int find_ymax(int (*xy_arr)[2])
+{
+    int ymax = xy_arr[0][1];
+    for(int i = 0; i < sizeof(xy_arr)/sizeof(xy_arr[0]); i++)
+    {
+        if(ymax < xy_arr[i][1])
+            ymax = xy_arr[i][1];
+    }
+    return ymax;
+}
 
 int getch()
 {
@@ -183,20 +252,57 @@ int getch()
     return c;
 }
 
-void print_block(int (*shape)[4], int x, int y)
+void print_block(block_struct block, int x, int y)
 {
     for(int i = 0; i < 4; i ++)
     {
+        int xmax = find_xmax(block.xy_arr);
+        int xmin = find_xmin(block.xy_arr);
+        int ymax = find_ymax(block.xy_arr);
         //printf("\033[s");//커서 위치 저장
         for(int j = 0; j < 4; j++)
         {
-            if(x == 1 && shape[i][j] == 0)
-                printf("▨");
-            else if (x == 12 && shape[i][j] == 0)
-                printf("▨");
-            else if(shape[i][j] == 0)
+            switch(xmin)
+            {
+                case 0:
+                    if(x == 0 && block.shape[i][j] == 0)
+                        printf("▨");
+                    break;
+                case 1:
+                    if(x == 1 && block.shape[i][j] == 0)
+                        printf("▨");
+                    break;
+                case 2:
+                    if(x == 2 && block.shape[i][j] == 0)
+                        printf("▨");
+                    break;
+                case 3:
+                    if(x == 3 && block.shape[i][j] == 0)
+                        printf("▨");
+                    break;
+            }
+            switch(xmax)
+            {
+                case 0:
+                    if(x == 13 && block.shape[i][j] == 0)
+                        printf("▨");
+                    break;
+                case 1:
+                    if(x == 12 && block.shape[i][j] == 0)
+                        printf("▨");
+                    break;
+                case 2:
+                    if(x == 11 && block.shape[i][j] == 0)
+                        printf("▨");
+                    break;
+                case 3:
+                    if(x == 10 && block.shape[i][j] == 0)
+                        printf("▨");
+                    break;
+            }
+            if(block.shape[i][j] == 0)
                 printf(" ");
-            else if(shape[i][j] == 1)
+            else if(block.shape[i][j] == 1)
                 printf("□");
             gotoxy(++x,y);//커서 우측으로 한 칸 이동
         }
