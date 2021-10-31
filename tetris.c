@@ -17,7 +17,7 @@ typedef struct {
 void gotoxy(int x, int y);
 int getch();
 void print_block(block_struct, int, int);
-void print_frame();
+void print_frame(int (*)[12]);
 void f1(int ** shape);
 void fill_xy_arr(int (*)[2], int (*)[4]);
 int find_xmax(int (*)[2]);
@@ -30,6 +30,29 @@ int main()
 {
     srand(time(NULL));
 
+    int frame[20][12] = 
+    {
+        {1,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,1},
+        {1,1,1,1,1,1,1,1,1,1,1,1}
+    };
     block_struct block[6] ={
         {(int[4][2]){0}, 
         {
@@ -91,7 +114,7 @@ int main()
     {
         printf("\033[2J");//tput clear
         gotoxy(1,1);
-        print_frame();//게임틀 출력
+        print_frame(frame);//게임틀 출력
         gotoxy(x,y);
         print_block(block[current], x, y);
         fill_xy_arr(block[current].xy_arr, block[current].shape);
@@ -110,12 +133,34 @@ int main()
         {
             size = 8 * 4;
         }
-
         key = getch();
         if(key == 66)
         {
-            y++;
             //아래로 떨구기
+            y = 20 - (ymax + 1);
+            //x + xy_arr[0][0], y + xy_arr[0][1] : frame index
+            for(int i; i < size/sizeof(block[current].xy_arr[0]); i++)
+            {
+                int framex[size/sizeof(block[current].xy_arr[0])], framey[size/sizeof(block[current].xy_arr[0])];
+                
+                framex[i] = x + block[current].xy_arr[i][0] - 1;
+                framey[i] = y + block[current].xy_arr[i][1] - 1;
+                if(frame[framex[i]][framey[i]] == 2 || frame[framex[i]][framey[i]] == 1)
+                {
+                    y--;
+                    continue;
+                }
+                
+                //frame배열에 겹치는 부분이 없다면 frame에 2값 대입
+                if(i == size/sizeof(block[current].xy_arr[0] - 1))
+                {
+                    for(int j = 0; j < size/sizeof(block[current].xy_arr[0]); j++)
+                    {
+                        frame[framey[j]][framex[j]] = 2;
+                    }
+                }
+            }
+            continue;
         }
         if(key == 67)
         {
@@ -202,6 +247,11 @@ void fill_xy_arr(int (*xy_arr)[2], int (*shape)[4])
             }
         }
     }
+    /*
+    for(int j = 0; j <size/sizeof(xy_arr[0]); j++)
+    {
+        printf("%d %d\n", xy_arr[j][0], xy_arr[j][1]);
+    }*/
 }
 
 void gotoxy(int x, int y) 
@@ -323,32 +373,10 @@ void print_block(block_struct block, int x, int y)
     }
 }
 
-void print_frame()
+void print_frame(int (*frame)[12])
 {
     
-    int frame[20][12] = 
-    {
-        {1,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,1},
-        {1,1,1,1,1,1,1,1,1,1,1,1}
-    };
+    
     for(int i = 0; i < 20; i++)
     {
         
