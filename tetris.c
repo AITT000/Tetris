@@ -152,7 +152,7 @@ int main()
                 }
                 
                 //frame배열에 겹치는 부분이 없다면 frame에 2값 대입
-                if(i == size/sizeof(block[current].xy_arr[0] - 1))
+                if(i == size/sizeof(block[current].xy_arr[0]) - 1)
                 {
                     for(int j = 0; j < size/sizeof(block[current].xy_arr[0]); j++)
                     {
@@ -160,7 +160,10 @@ int main()
                     }
                 }
             }
-            continue;
+        current = rand()%6;
+        x = 6;
+        y = 1;
+        key = 0;
         }
         if(key == 67)
         {
