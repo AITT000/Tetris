@@ -23,6 +23,7 @@ void fill_xy_arr(int (*)[2], int (*)[4]);
 int find_xmax(int (*)[2]);
 int find_xmin(int (*)[2]);
 int find_ymax(int (*)[2]);
+int isanyblock(int (*frame)[12], int * x);
 
 int size = 0;
 
@@ -112,6 +113,15 @@ int main()
     int current = (rand() % 6);
     while(1)
     {
+        if(current == 5)
+        {
+            size = 10 * 4;
+        }
+        else
+        {
+            size = 8 * 4;
+        }
+
         printf("\033[2J");//tput clear
         gotoxy(1,1);
         print_frame(frame);//게임틀 출력
@@ -125,92 +135,102 @@ int main()
         //printf("□");
         //printf("■■■■■■■■■■■\n");
        
-        if(current == 5)
-        {
-            size = 10 * 4;
-        }
-        else
-        {
-            size = 8 * 4;
-        }
         key = getch();
-        if(key == 66)
+        if(key == 10)
+            key = getch();
+        if(key == 27)
         {
-            //아래로 떨구기
-            y = 20 - (ymax + 1);
-            //x + xy_arr[0][0], y + xy_arr[0][1] : frame index
-            for(int i; i < size/sizeof(block[current].xy_arr[0]); i++)
+            key = getch();
+            if(key == 91)
             {
-                int framex[size/sizeof(block[current].xy_arr[0])], framey[size/sizeof(block[current].xy_arr[0])];
-                
-                framex[i] = x + block[current].xy_arr[i][0] - 1;
-                framey[i] = y + block[current].xy_arr[i][1] - 1;
-                if(frame[framex[i]][framey[i]] == 2 || frame[framex[i]][framey[i]] == 1)
+                key = getch();
+                if(key == 66)
                 {
-                    y--;
-                    continue;
-                }
-                
-                //frame배열에 겹치는 부분이 없다면 frame에 2값 대입
-                if(i == size/sizeof(block[current].xy_arr[0]) - 1)
-                {
-                    for(int j = 0; j < size/sizeof(block[current].xy_arr[0]); j++)
+                    //아래로 떨구기
+                    y = 20 - (ymax + 1);
+                    //x + xy_arr[0][0], y + xy_arr[0][1] : frame index
+                    for(int i = 0; i < size/sizeof(block[current].xy_arr[0]); i++)
                     {
-                        frame[framey[j]][framex[j]] = 2;
+                        int framex[size/sizeof(block[current].xy_arr[0])], framey[size/sizeof(block[current].xy_arr[0])];
+                        
+                        framex[i] = x + block[current].xy_arr[i][0] - 1;
+                        framey[i] = y + block[current].xy_arr[i][1] - 1;
+                        //if(해당하는 x좌표에 해당하는 y좌표 위로 하나의 행이라도 블럭이 있으면 return 1;)
+                        if(isanyblock(frame, framex))
+                        {
+                            y--;
+                            i = -1;
+                            continue;
+                        }
+                        /*
+                        if(frame[framey[i]][framex[i]] == 2 || frame[framey[i]][framex[i]] == 1)
+                        {
+                            
+                        }
+                        */
+                        //frame배열에 겹치는 부분이 없다면 frame에 2값 대입
+                        if(i == size/sizeof(block[current].xy_arr[0]) - 1)
+                        {
+                            for(int j = 0; j < size/sizeof(block[current].xy_arr[0]); j++)
+                            {
+                                frame[framey[j]][framex[j]] = 2;
+                            }
+                        }
+                    }
+                current = rand()%6;
+                x = 6;
+                y = 1;
+                key = 0;
+                }
+                if(key == 67)
+                {
+                    x++;
+                    switch(xmax)
+                    {
+                        case 0:
+                            if(x > 11)
+                                x--;
+                            break;
+                        case 1:
+                            if(x > 10)
+                                x--;
+                            break;
+                        case 2:
+                            if(x > 9)
+                                x--;
+                            break;
+                        case 3:
+                            if(x > 8)
+                                x--;
+                            break;
+                    }
+                }
+                if(key == 68)
+                {
+                    x--;
+                    switch(xmin)
+                    {
+                        case 0:
+                            if(x < 2)
+                                x++;
+                            break;
+                        case 1:
+                            if(x < 1)
+                                x++;
+                            break;
+                        case 2:
+                            if(x < 0)
+                                x++;
+                            break;
+                        case 3:
+                            if(x < -1)
+                                x++;
+                            break;
                     }
                 }
             }
-        current = rand()%6;
-        x = 6;
-        y = 1;
-        key = 0;
         }
-        if(key == 67)
-        {
-            x++;
-            switch(xmax)
-            {
-                case 0:
-                    if(x > 11)
-                        x--;
-                    break;
-                case 1:
-                    if(x > 10)
-                        x--;
-                    break;
-                case 2:
-                    if(x > 9)
-                        x--;
-                    break;
-                case 3:
-                    if(x > 8)
-                        x--;
-                    break;
-            }
-        }
-        if(key == 68)
-        {
-            x--;
-            switch(xmin)
-            {
-                case 0:
-                    if(x < 2)
-                        x++;
-                    break;
-                case 1:
-                    if(x < 1)
-                        x++;
-                    break;
-                case 2:
-                    if(x < 0)
-                        x++;
-                    break;
-                case 3:
-                    if(x < -1)
-                        x++;
-                    break;
-            }
-        }
+        
     }
     
 }
@@ -297,6 +317,19 @@ int find_ymax(int (*xy_arr)[2])
     return ymax;
 }
 
+int isanyblock(int (*frame)[12], int * framex)
+{
+    for(int i = 0; i < sizeof(framex)/sizeof(framex[0]); i++)
+    {
+        for(int j = 0; j < 19; j++)
+        {
+            if(frame[j][framex[i]] == 2)
+            return 1;
+        }
+    }
+    return 0;
+}
+
 int getch()
 {
     int c;
@@ -323,45 +356,11 @@ void print_block(block_struct block, int x, int y)
         //printf("\033[s");//커서 위치 저장
         for(int j = 0; j < 4; j++)
         {
-            switch(xmin)
-            {
-                case 0:
-                    if(x == 0 && block.shape[i][j] == 0)
-                        printf("▨");
-                    break;
-                case 1:
-                    if(x == 1 && block.shape[i][j] == 0)
-                        printf("▨");
-                    break;
-                case 2:
-                    if(x == 2 && block.shape[i][j] == 0)
-                        printf("▨");
-                    break;
-                case 3:
-                    if(x == 3 && block.shape[i][j] == 0)
-                        printf("▨");
-                    break;
-            }
-            switch(xmax)
-            {
-                case 0:
-                    if(x == 10 && block.shape[i][j] == 0)
-                        printf("▨");
-                    break;
-                case 1:
-                    if(x == 11 && block.shape[i][j] == 0)
-                        printf("▨");
-                    break;
-                case 2:
-                    if(x == 12 && block.shape[i][j] == 0)
-                        printf("▨");
-                    break;
-                case 3:
-                    if(x == 13 && block.shape[i][j] == 0)
-                        printf("▨");
-                    break;
-            }
-            if(block.shape[i][j] == 0)
+            if(x == 1 && block.shape[i][j] == 0)
+                printf("▨");
+            else if(x == 12 && block.shape[i][j] == 0)
+                printf("▨");
+            else if(block.shape[i][j] == 0)
                 printf(" ");
             else if(block.shape[i][j] == 1)
                 printf("□");
