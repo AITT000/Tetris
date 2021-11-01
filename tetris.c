@@ -23,7 +23,7 @@ void fill_xy_arr(int (*)[2], int (*)[4]);
 int find_xmax(int (*)[2]);
 int find_xmin(int (*)[2]);
 int find_ymax(int (*)[2]);
-int isanyblock(int (*frame)[12], int * x);
+int isanyblock(int (*frame)[12], int * ,int *);
 
 int size = 0;
 
@@ -152,11 +152,14 @@ int main()
                     for(int i = 0; i < size/sizeof(block[current].xy_arr[0]); i++)
                     {
                         int framex[size/sizeof(block[current].xy_arr[0])], framey[size/sizeof(block[current].xy_arr[0])];
-                        
-                        framex[i] = x + block[current].xy_arr[i][0] - 1;
-                        framey[i] = y + block[current].xy_arr[i][1] - 1;
+                        for(int j = 0; j < size/sizeof(block[current].xy_arr[0]); j++)
+                        {
+                            framex[j] = x + block[current].xy_arr[j][0] - 1;
+                            framey[j] = y + block[current].xy_arr[j][1] - 1;
+                        }
+                        printf("%ld", sizeof(framex)/sizeof(framex[0]));
                         //if(해당하는 x좌표에 해당하는 y좌표 위로 하나의 행이라도 블럭이 있으면 return 1;)
-                        if(isanyblock(frame, framex))
+                        if(isanyblock(frame, framex, framey))
                         {
                             y--;
                             i = -1;
@@ -317,11 +320,11 @@ int find_ymax(int (*xy_arr)[2])
     return ymax;
 }
 
-int isanyblock(int (*frame)[12], int * framex)
+int isanyblock(int (*frame)[12], int * framex, int * framey)
 {
     for(int i = 0; i < sizeof(framex)/sizeof(framex[0]); i++)
     {
-        for(int j = 0; j < 19; j++)
+        for(int j = framey[i]; j >= 0; j--)
         {
             if(frame[j][framex[i]] == 2)
             return 1;
