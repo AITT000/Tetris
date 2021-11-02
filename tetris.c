@@ -28,6 +28,7 @@ int isanyblock(int (*frame)[12], int * ,int *, int);
 void oneline_complete(int (*frame)[12]);
 void mv_line(int (*frame)[12], int i);
 int kbhit(void);
+isgameover(int (*frame)[12], block_struct block);
 
 int size = 0;
 
@@ -154,6 +155,9 @@ int main()
         gotoxy(18, 2);
         print_block(block[next], 18, 2, frame);
 
+        if(isgameover(int (*frame)[12], block_struct block))
+            break;
+
         gotoxy(x,y);
         if(print_block(block[current], x, y, frame))
         {
@@ -163,8 +167,7 @@ int main()
             y = 1;
             continue;
         }
-        //printf("□");
-        //printf("■■■■■■■■■■■\n");
+
        if(kbhit() == 0)
        {
            int out = 0;
@@ -219,7 +222,7 @@ int main()
             if(key == 91)
             {
                 key = getch();
-                if(key == 66)
+                if(key == 66)//방향키 아래
                 {
                     //아래로 떨구기
                     y = 20 - (ymax + 1);
@@ -254,7 +257,7 @@ int main()
                 y = 1;
                 key = 0;
                 }
-                if(key == 67)
+                if(key == 67)//방향키 오른쪽
                 {
                     x++;
                     switch(xmax)
@@ -277,7 +280,7 @@ int main()
                             break;
                     }
                 }
-                if(key == 68)
+                if(key == 68)//방향키 왼쪽
                 {
                     x--;
                     switch(xmin)
@@ -304,7 +307,8 @@ int main()
         }
         
     }
-    
+    gotoxy(17, 10);
+    printf("GAME OVER");    
 }
 
 void f1(int (*shape)[4])
@@ -451,7 +455,7 @@ int print_block(block_struct block, int x, int y, int (*frame)[12])
                 printf("□");
             else if(block.shape[i][j] == 0 && frame[y - 1][x - 1] == 2)
                 printf("■");
-            else if(1 <= x <= 12 && block.shape[i][j] == 0 && frame[y - 1][x - 1] == 1)
+            else if(1 <= x && x <= 12 && block.shape[i][j] == 0 && frame[y - 1][x - 1] == 1)
                 printf("▨");
             gotoxy(++x,y);//커서 우측으로 한 칸 이동
         }
