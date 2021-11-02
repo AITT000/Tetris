@@ -7,6 +7,7 @@
 #include <termio.h>
 #include <unistd.h>
 #include <wchar.h>
+#include <fcntl.h>
 
 typedef struct {
     int (*xy_arr)[2];
@@ -16,7 +17,7 @@ typedef struct {
 
 void gotoxy(int x, int y);
 int getch();
-void print_block(block_struct, int, int);
+int print_block(block_struct, int, int, int (*)[12]);
 void print_frame(int (*)[12]);
 void f1(int (*shape)[4]);
 void fill_xy_arr(int (*)[2], int (*)[4]);
@@ -26,6 +27,7 @@ int find_ymax(int (*)[2]);
 int isanyblock(int (*frame)[12], int * ,int *, int);
 void oneline_complete(int (*frame)[12]);
 void mv_line(int (*frame)[12], int i);
+int kbhit(void);
 
 int size = 0;
 
@@ -113,6 +115,9 @@ int main()
     int y = 1;
     int key = 0;
     int current = (rand() % 6);
+    clock_t start, end;
+    start = clock();
+
     while(1)
     {
         if(current == 5)
@@ -124,24 +129,51 @@ int main()
             size = (8 * 4)/sizeof(block[current].xy_arr[0]);
         }
 
+        fill_xy_arr(block[current].xy_arr, block[current].shape);
+        int xmax = find_xmax(block[current].xy_arr);
+        int xmin = find_xmin(block[current].xy_arr);
+        int ymax = find_ymax(block[current].xy_arr);
         printf("\033[2J");//tput clear
         oneline_complete(frame);
         gotoxy(1,1);
         print_frame(frame);//게임틀 출력
         gotoxy(x,y);
-        print_block(block[current], x, y);
-        fill_xy_arr(block[current].xy_arr, block[current].shape);
-        int xmax = find_xmax(block[current].xy_arr);
-        int xmin = find_xmin(block[current].xy_arr);
-        int ymax = find_ymax(block[current].xy_arr);
-        
+        if(print_block(block[current], x, y, frame))
+        {
+            current = rand()%6;
+            x = 6;
+            y = 1;
+            continue;
+        }
         //printf("□");
         //printf("■■■■■■■■■■■\n");
-       
+       if(kbhit() == 0)
+       {
+           int out = 0;
+           while(1)
+           {
+               if(kbhit())
+                {
+                    out = 1;
+                    break;
+                }
+            
+                end = clock();
+                if((end - start)/1000 >= 1000)//1초 경과
+                {
+                    start = end;
+                    y++;
+                    //블럭 한 칸 아래로
+                    break;
+                }
+           }
+           if(out != 1)
+            continue;
+       }
         key = getch();
         if(key == 10)       //LF 방지
             key = getch();
-        if(key == 116)
+        if(key == 116 && current < 5)
         {
             block[current].spin(block[current].shape);
             fill_xy_arr(block[current].xy_arr, block[current].shape);
@@ -189,12 +221,6 @@ int main()
                             i = -1;
                             continue;
                         }
-                        /*
-                        if(frame[framey[i]][framex[i]] == 2 || frame[framey[i]][framex[i]] == 1)
-                        {
-                            
-                        }
-                        */
                         //frame배열에 겹치는 부분이 없다면 frame에 2값 대입
                         if(i == size - 1)
                         {
@@ -297,11 +323,6 @@ void fill_xy_arr(int (*xy_arr)[2], int (*shape)[4])
             }
         }
     }
-    /*
-    for(int j = 0; j <size/sizeof(xy_arr[0]); j++)
-    {
-        printf("%d %d\n", xy_arr[j][0], xy_arr[j][1]);
-    }*/
 }
 
 void gotoxy(int x, int y) 
@@ -373,13 +394,32 @@ int getch()
     return c;
 }
 
-void print_block(block_struct block, int x, int y)
+int print_block(block_struct block, int x, int y, int (*frame)[12])
 {
-    for(int i = 0; i < 4; i ++)
+    int framex[size], framey[size];
+    for(int i = 0; i < size; i++)
+    {
+        framex[i] = x + block.xy_arr[i][0] - 1;
+        framey[i] = y + block.xy_arr[i][1] - 1;
+    }
+
+    for(int i = 0; i < 4; i++)
     {
         int xmax = find_xmax(block.xy_arr);
         int xmin = find_xmin(block.xy_arr);
         int ymax = find_ymax(block.xy_arr);
+    
+        for(int j = 0; j < size; j++)
+        {
+            if(frame[framey[j]][framex[j]] == 2 ||frame[framey[j]][framex[j]] == 1)
+            {
+                for(int k = 0; k < size; k++)
+                {
+                    frame[framey[k]][framex[k] - 1] = 2;
+                }
+                return 1;
+            }
+        }
         //printf("\033[s");//커서 위치 저장
         for(int j = 0; j < 4; j++)
         {
@@ -400,6 +440,7 @@ void print_block(block_struct block, int x, int y)
         //printf("\033[u");//저장된 커서 위치로 이동
         //printf("\033[%dB", 1);//아래로 한 칸씩 커서 이동
     }
+    return 0;
 }
 
 void oneline_complete(int (*frame)[12])
@@ -494,4 +535,31 @@ void print_frame(int (*frame)[12])
         wprintf(L"%ls\n", frame[i]);
     }
     */
+}
+
+int kbhit(void)
+{
+  struct termios oldt, newt;
+  int ch;
+  int oldf;
+
+  tcgetattr(STDIN_FILENO, &oldt);
+  newt = oldt;
+  newt.c_lflag &= ~(ICANON | ECHO);
+  tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+  oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+  fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+
+  ch = getchar();
+
+  tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+  fcntl(STDIN_FILENO, F_SETFL, oldf);
+
+  if(ch != EOF)
+  {
+    ungetc(ch, stdin);
+    return 1;
+  }
+
+  return 0;
 }
