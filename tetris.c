@@ -114,7 +114,8 @@ int main()
     int x = 6;
     int y = 1;
     int key = 0;
-    int current = (rand() % 6);
+    int current = rand() % 6;
+    int next = rand() % 6;
     clock_t start, end;
     start = clock();
 
@@ -137,10 +138,27 @@ int main()
         oneline_complete(frame);
         gotoxy(1,1);
         print_frame(frame);//게임틀 출력
+        
+        gotoxy(17, 1);//다음 블럭 출력
+        printf("▨▨▨▨▨▨");
+        gotoxy(17, 2);
+        printf("▨    ▨");
+        gotoxy(17, 3);
+        printf("▨    ▨");
+        gotoxy(17, 4);
+        printf("▨    ▨");
+        gotoxy(17, 5);
+        printf("▨    ▨");
+        gotoxy(17, 6);
+        printf("▨▨▨▨▨▨");
+        gotoxy(18, 2);
+        print_block(block[next], 18, 2, frame);
+
         gotoxy(x,y);
         if(print_block(block[current], x, y, frame))
         {
-            current = rand()%6;
+            current = next;
+            next = rand()%6;
             x = 6;
             y = 1;
             continue;
@@ -230,7 +248,8 @@ int main()
                             }
                         }
                     }
-                current = rand()%6;
+                current = next;
+                next = rand()%6;
                 x = 6;
                 y = 1;
                 key = 0;
@@ -432,7 +451,7 @@ int print_block(block_struct block, int x, int y, int (*frame)[12])
                 printf("□");
             else if(block.shape[i][j] == 0 && frame[y - 1][x - 1] == 2)
                 printf("■");
-            else if(block.shape[i][j] == 0 && frame[y - 1][x - 1] == 1)
+            else if(1 <= x <= 12 && block.shape[i][j] == 0 && frame[y - 1][x - 1] == 1)
                 printf("▨");
             gotoxy(++x,y);//커서 우측으로 한 칸 이동
         }
