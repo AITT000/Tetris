@@ -401,6 +401,21 @@ int isanyblock(int (*frame)[12], int * framex, int * framey, int size)
     return 0;
 }
 
+isgameover(int (*frame)[12], block_struct block, int x, int y)
+{
+    int framex[size], framey[size];
+    for(int i = 0; i < size; i++)
+    {
+        framex[i] = x + block.xy_arr[i][0] - 1;
+        framey[i] = y + block.xy_arr[i][1] - 1;
+    }
+
+    for(int i = 0; i < size; i++)
+    {
+        if(frame[x][y] == )
+    }
+}
+
 int getch()
 {
     int c;
