@@ -405,40 +405,41 @@ int print_block(block_struct block, int x, int y, int (*frame)[12])
 
     for(int i = 0; i < 4; i++)
     {
-        int xmax = find_xmax(block.xy_arr);
-        int xmin = find_xmin(block.xy_arr);
-        int ymax = find_ymax(block.xy_arr);
+        //int xmax = find_xmax(block.xy_arr);
+        //int xmin = find_xmin(block.xy_arr);
+        //int ymax = find_ymax(block.xy_arr);
     
         for(int j = 0; j < size; j++)
         {
-            if(frame[framey[j]][framex[j]] == 2 ||frame[framey[j]][framex[j]] == 1)
+            if(frame[framey[j]][framex[j]] == 2 || frame[framey[j]][framex[j]] == 1)
             {
                 for(int k = 0; k < size; k++)
                 {
-                    frame[framey[k]][framex[k] - 1] = 2;
+                    frame[framey[k] - 1][framex[k]] = 2;
                 }
                 return 1;
             }
         }
-        //printf("\033[s");//커서 위치 저장
         for(int j = 0; j < 4; j++)
         {
             if(x == 1 && block.shape[i][j] == 0)
                 printf("▨");
             else if(x == 12 && block.shape[i][j] == 0)
                 printf("▨");
-            else if(block.shape[i][j] == 0)
+            else if(block.shape[i][j] == 0 && frame[y - 1][x - 1] == 0)
                 printf(" ");
-            else if(block.shape[i][j] == 1)
+            else if(block.shape[i][j] == 1 && frame[y - 1][x - 1] == 0)
                 printf("□");
+            else if(block.shape[i][j] == 0 && frame[y - 1][x - 1] == 2)
+                printf("■");
+            else if(block.shape[i][j] == 0 && frame[y - 1][x - 1] == 1)
+                printf("▨");
             gotoxy(++x,y);//커서 우측으로 한 칸 이동
         }
         x -= 4;
         y++;
         gotoxy(x,y);
         //좌측으로 네 칸, 아래로 한 칸 커서 이동
-        //printf("\033[u");//저장된 커서 위치로 이동
-        //printf("\033[%dB", 1);//아래로 한 칸씩 커서 이동
     }
     return 0;
 }
