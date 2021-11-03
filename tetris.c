@@ -135,6 +135,7 @@ int main()
         int xmax = find_xmax(block[current].xy_arr);
         int xmin = find_xmin(block[current].xy_arr);
         int ymax = find_ymax(block[current].xy_arr);
+        int framex[size], framey[size];
         printf("\033[2J");//tput clear
         oneline_complete(frame);
         gotoxy(1,1);
@@ -229,7 +230,6 @@ int main()
                     //x + xy_arr[0][0], y + xy_arr[0][1] : frame index
                     for(int i = 0; i < size; i++)
                     {
-                        int framex[size], framey[size];
                         for(int j = 0; j < size; j++)
                         {
                             framex[j] = x + block[current].xy_arr[j][0] - 1;
@@ -279,6 +279,19 @@ int main()
                                 x--;
                             break;
                     }
+                    for(int j = 0; j < size; j++)
+                    {
+                        framex[j] = x + block[current].xy_arr[j][0] - 1;
+                        framey[j] = y + block[current].xy_arr[j][1] - 1;
+                    }
+                    for(int i = 0; i < size && 1 <= x && x <= 12; i++)
+                    {
+                        if(frame[framey[i]][framex[i] + 1] == 2)
+                        {
+                            x--;
+                            break;
+                        }
+                    }
                 }
                 if(key == 68)//방향키 왼쪽
                 {
@@ -301,6 +314,19 @@ int main()
                             if(x < -1)
                                 x++;
                             break;
+                    }
+                    for(int j = 0; j < size; j++)
+                    {
+                        framex[j] = x + block[current].xy_arr[j][0] - 1;
+                        framey[j] = y + block[current].xy_arr[j][1] - 1;
+                    }
+                    for(int i = 0; i < size && 1 <= x && x <= 12; i++)
+                    {
+                        if(frame[framey[i]][framex[i] - 1] == 2)
+                        {
+                            x++;
+                            break;
+                        }
                     }
                 }
             }
