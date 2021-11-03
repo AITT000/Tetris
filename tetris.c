@@ -28,7 +28,7 @@ int isanyblock(int (*frame)[12], int * ,int *, int);
 void oneline_complete(int (*frame)[12]);
 void mv_line(int (*frame)[12], int i);
 int kbhit(void);
-isgameover(int (*frame)[12], block_struct block);
+int isgameover(int (*frame)[12], block_struct block, int, int);
 
 int size = 0;
 
@@ -154,10 +154,10 @@ int main()
         printf("▨▨▨▨▨▨");
         gotoxy(18, 2);
         print_block(block[next], 18, 2, frame);
-
-        if(isgameover(int (*frame)[12], block_struct block))
+/*
+        if(isgameover(frame, block[current], x, y))
             break;
-
+*/
         gotoxy(x,y);
         if(print_block(block[current], x, y, frame))
         {
@@ -401,7 +401,7 @@ int isanyblock(int (*frame)[12], int * framex, int * framey, int size)
     return 0;
 }
 
-isgameover(int (*frame)[12], block_struct block, int x, int y)
+int isgameover(int (*frame)[12], block_struct block, int x, int y)
 {
     int framex[size], framey[size];
     for(int i = 0; i < size; i++)
@@ -412,8 +412,11 @@ isgameover(int (*frame)[12], block_struct block, int x, int y)
 
     for(int i = 0; i < size; i++)
     {
-        if(frame[x][y] == )
+        if(frame[framey[i]][framex[i]] == 2)
+            return 1;
     }
+
+    return 0;
 }
 
 int getch()
@@ -443,10 +446,6 @@ int print_block(block_struct block, int x, int y, int (*frame)[12])
 
     for(int i = 0; i < 4; i++)
     {
-        //int xmax = find_xmax(block.xy_arr);
-        //int xmin = find_xmin(block.xy_arr);
-        //int ymax = find_ymax(block.xy_arr);
-    
         for(int j = 0; j < size; j++)
         {
             if(frame[framey[j]][framex[j]] == 2 || frame[framey[j]][framex[j]] == 1)
