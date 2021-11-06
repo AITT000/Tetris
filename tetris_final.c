@@ -198,7 +198,7 @@ int main()
         key = getch();
         if(key == 10)       //LF 방지
             key = getch();
-        if(key == 116 && current < 5)
+        if(key == 116 && current < 5) //t입력시 스핀
         {
             block[current].spin(block[current].shape);
             fill_xy_arr(block[current].xy_arr, block[current].shape);
