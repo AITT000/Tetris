@@ -28,7 +28,8 @@ int isanyblock(int (*frame)[12], int * ,int *, int);
 void oneline_complete(int (*frame)[12]);
 void mv_line(int (*frame)[12], int i);
 int kbhit(void);
-int isgameover(int (*frame)[12], block_struct block, int, int);
+int isgameover(int (*frame)[12], block_struct block, const int, const int);
+int search_highest_block(int(*frame)[12], int);
 
 int size = 0;
 
@@ -142,23 +143,25 @@ int main()
         print_frame(frame);//게임틀 출력
         
         gotoxy(17, 1);//다음 블럭 출력
-        printf("▨▨▨▨▨▨");
+        printf("▨ ▨ ▨ ▨ ▨ ▨");
         gotoxy(17, 2);
-        printf("▨    ▨");
+        printf("▨         ▨");
         gotoxy(17, 3);
-        printf("▨    ▨");
+        printf("▨         ▨");
         gotoxy(17, 4);
-        printf("▨    ▨");
+        printf("▨         ▨");
         gotoxy(17, 5);
-        printf("▨    ▨");
+        printf("▨         ▨");
         gotoxy(17, 6);
-        printf("▨▨▨▨▨▨");
+        printf("▨ ▨ ▨ ▨ ▨ ▨");
         gotoxy(18, 2);
         print_block(block[next], 18, 2, NULL);
-/*
-        if(isgameover(frame, block[current], x, y))
+
+        if(isgameover(frame, block[current], 6, 1))
+        {
+            print_block(block[current], x, y, frame);
             break;
-*/
+        }
         gotoxy(x,y);
         if(print_block(block[current], x, y, frame))
         {
@@ -211,8 +214,6 @@ int main()
                     x--;
                     i = -1;
                 }
-
-
                 //y가 기존에 frame과 겹치는 경우도 계산
             }
             continue;
@@ -260,33 +261,22 @@ int main()
                 if(key == 67)//방향키 오른쪽
                 {
                     x++;
-                    switch(xmax)
-                    {
-                        case 0:
-                            if(x > 11)
-                                x--;
-                            break;
-                        case 1:
-                            if(x > 10)
-                                x--;
-                            break;
-                        case 2:
-                            if(x > 9)
-                                x--;
-                            break;
-                        case 3:
-                            if(x > 8)
-                                x--;
-                            break;
-                    }
                     for(int j = 0; j < size; j++)
                     {
                         framex[j] = x + block[current].xy_arr[j][0] - 1;
                         framey[j] = y + block[current].xy_arr[j][1] - 1;
                     }
+                    for(int i = 0; i < size; i++)
+                    {
+                        if(framex[i] == 11)
+                        {
+                            x--;
+                            break;
+                        }
+                    }
                     for(int i = 0; i < size && 1 <= x && x <= 12; i++)
                     {
-                        if(frame[framey[i]][framex[i] + 1] == 2)
+                        if(frame[framey[i]][framex[i]] == 2)
                         {
                             x--;
                             break;
@@ -296,33 +286,22 @@ int main()
                 if(key == 68)//방향키 왼쪽
                 {
                     x--;
-                    switch(xmin)
-                    {
-                        case 0:
-                            if(x < 2)
-                                x++;
-                            break;
-                        case 1:
-                            if(x < 1)
-                                x++;
-                            break;
-                        case 2:
-                            if(x < 0)
-                                x++;
-                            break;
-                        case 3:
-                            if(x < -1)
-                                x++;
-                            break;
-                    }
                     for(int j = 0; j < size; j++)
                     {
                         framex[j] = x + block[current].xy_arr[j][0] - 1;
                         framey[j] = y + block[current].xy_arr[j][1] - 1;
                     }
+                    for(int i = 0; i < size; i++)
+                    {
+                        if(framex[i] == 0)
+                        {
+                            x++;
+                            break;
+                        }
+                    }
                     for(int i = 0; i < size && 1 <= x && x <= 12; i++)
                     {
-                        if(frame[framey[i]][framex[i] - 1] == 2)
+                        if(frame[framey[i]][framex[i]] == 2)
                         {
                             x++;
                             break;
@@ -376,7 +355,7 @@ void fill_xy_arr(int (*xy_arr)[2], int (*shape)[4])
 
 void gotoxy(int x, int y) 
 {
-     printf("\033[%d;%df",y,x);
+     printf("\033[%d;%df",y,x + x - 1);
 
      fflush(stdout);
 }
@@ -418,7 +397,8 @@ int isanyblock(int (*frame)[12], int * framex, int * framey, int size)
 {
     for(int i = 0; i < size; i++)
     {
-        for(int j = framey[i]; j >= 0; j--)
+        int highest_y = search_highest_block(frame, framex[i]);
+        for(int j = framey[i]; j >= highest_y; j--)
         {
             if(frame[j][framex[i]] == 2)
             return 1;
@@ -427,7 +407,7 @@ int isanyblock(int (*frame)[12], int * framex, int * framey, int size)
     return 0;
 }
 
-int isgameover(int (*frame)[12], block_struct block, int x, int y)
+int isgameover(int (*frame)[12], block_struct block, const int x, const int y)
 {
     int framex[size], framey[size];
     for(int i = 0; i < size; i++)
@@ -551,6 +531,19 @@ void mv_line(int (*frame)[12], int i)
     }
 }
 
+int search_highest_block(int(*frame)[12], int x)
+{
+    int highest = 0;
+    for(int i = 20; i >= 0; i--)
+    {
+        if(frame[x][i] == 2)
+        {
+            highest = i;
+        }
+    }
+    return highest;
+}
+
 void print_frame(int (*frame)[12])
 {
     
@@ -562,15 +555,15 @@ void print_frame(int (*frame)[12])
         {
             if(frame[i][j] == 0)
             {
-                printf(" ");
+                printf("  ");
             }
             else if (frame[i][j] == 1)
             {
-                printf("▨");
+                printf("▨ ");
             }
             else if (frame[i][j] == 2)
             {
-                printf("■");
+                printf("■ ");
             }
         }
         printf("\n");
